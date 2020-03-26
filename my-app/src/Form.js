@@ -14,8 +14,19 @@ const formSchema = yup.object().shape({
 });
 
 export default function Form() {
+  //managing state for my inputs
+  const [formState, setFormState] = useState({
+    name: "",
+    email: "",
+    password: "",
+    terms: ""
+  });
+
   //state for whether the button should be disabled or not
   const [buttonDisabled, setButtonDisabled] = useState(true);
+
+  //new state to set our post request too. so we can console.log and see it
+  const [post, setPost] = useState([]);
 
   /* Each time the form value state is updated, check to see if it is valid per our schema.
   This will allow us to enable/disable the submit button.*/
@@ -60,14 +71,6 @@ isValid comes from Yup directly */
     setFormState(newFormData);
   };
 
-  //managing state for my inputs
-  const [formState, setFormState] = useState({
-    name: "",
-    email: "",
-    password: "",
-    terms: ""
-  });
-
   //setting state for errors
   const [errors, setErrors] = useState({
     name: "",
@@ -79,7 +82,21 @@ isValid comes from Yup directly */
   //Form submit control
   const formSubmit = e => {
     e.preventDefault();
-    console.log(">>>>Form submitted!<<<<<<<");
+    axios
+      .post("https://reqres.in/api/users", formState)
+      .then(res => {
+        setPost(res.data);
+        console.log("success", post);
+
+        // console.log(">>>>Form submitted!<<<<<<<");
+        setFormState({
+          name: "",
+          email: "",
+          password: "",
+          terms: ""
+        });
+      })
+      .catch(err => console.log("FormSubmit", err.res));
   };
 
   return (
@@ -87,11 +104,29 @@ isValid comes from Yup directly */
       <form onSubmit={formSubmit}>
         <label htmlFor="name">
           Name:
-          <input type="text" name="name" id="name" value={formState.name} />
+          <input
+            type="text"
+            name="name"
+            id="name"
+            value={formState.name}
+            onChange={inputChange}
+          />
+          {errors.name.length > 0 ? (
+            <p className="error">{errors.name}</p>
+          ) : null}
         </label>
         <label htmlFor="email">
           Email:
-          <input type="text" name="email" id="email" value={formState.email} />
+          <input
+            type="text"
+            name="email"
+            id="email"
+            value={formState.email}
+            onChange={inputChange}
+          />
+          {errors.email.length > 0 ? (
+            <p className="error"> {errors.email} </p>
+          ) : null}
         </label>
         <label htmlFor="password">
           Password:
@@ -100,12 +135,22 @@ isValid comes from Yup directly */
             name="password"
             id="password"
             value={formState.password}
+            onChange={inputChange}
           />
+          {errors.password.length > 0 ? (
+            <p className="error"> {errors.password} </p>
+          ) : null}
         </label>
         <label htmlFor="terms" className="terms">
           Terms & Conditions
-          <input type="checkbox" name="terms" checked={formState.terms} />
+          <input
+            type="checkbox"
+            name="terms"
+            checked={formState.terms}
+            onChange={inputChange}
+          />
         </label>
+        <pre>{JSON.stringify(post, null, 3)}</pre>
         <button disabled={buttonDisabled}>Submit</button>
       </form>
     </div>
