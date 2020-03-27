@@ -5,7 +5,7 @@ import Form from "./Form";
 function App() {
   return (
     <div className="App">
-      Hello from App
+      Form
       <Form />
     </div>
   );
